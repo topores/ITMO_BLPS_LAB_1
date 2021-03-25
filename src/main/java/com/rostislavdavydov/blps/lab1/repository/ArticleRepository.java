@@ -13,8 +13,14 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long>, CrudRepository<Article, Long> {
 
     List<Article> findAllByUser(User user);
-    List<Article> findAllByUserAndState(User user,String state);
+
+    List<Article> findAllByState(String state);
+
+    List<Article> findAllByUserAndState(User user, String state);
+
     List<Article> findAllByUserAndStateNot(User user, String state);
-    Optional<Article> findByIdAndState(Long id, String  state);
-    Optional<Article> findByIdAndStateAndUser(Long id, String  state,User user);
+
+    Optional<Article> findByIdAndState(Long id, String state);
+
+    Optional<Article> findByIdAndStateAndUser(Long id, String state, User user);
 }

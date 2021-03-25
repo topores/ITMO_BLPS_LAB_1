@@ -20,33 +20,42 @@ public class ArticleService {
     }
 
     public Article saveArticle(Article article) {
-
         articleRepository.save(article);
         return article;
     }
 
+
+    public Article deleteArticle(Article article) {
+        articleRepository.delete(article);
+        return article;
+    }
+
     public List<Article> fetchArticlesByUser(User user) {
-            return articleRepository.findAllByUser(user);
-
+        return articleRepository.findAllByUser(user);
     }
+
     public List<Article> fetchArticlesByUserAndState(User user, String state) {
-        return articleRepository.findAllByUserAndState(user,state);
-
+        return articleRepository.findAllByUserAndState(user, state);
     }
+
     public List<Article> fetchArticlesByUserAndNotState(User user, String state) {
-        return articleRepository.findAllByUserAndStateNot(user,state);
-
-    }
-    public Optional<Article> fetchArticleByIdAndState(Long id, String state){
-        return articleRepository.findByIdAndState(id,state);
+        return articleRepository.findAllByUserAndStateNot(user, state);
     }
 
-    public Optional<Article> fetchArticleByIdAndStateAndUser(Long id, String state,User user){
-        return articleRepository.findByIdAndStateAndUser(id,state,user);
+    public List<Article> fetchArticlesByState(String state) {
+        return articleRepository.findAllByState(state);
     }
 
+    public Optional<Article> fetchArticleByIdAndState(Long id, String state) {
+        return articleRepository.findByIdAndState(id, state);
+    }
+    public Optional<Article> fetchArticleById(Long id) {
+        return articleRepository.findById(id);
+    }
 
-
+    public Optional<Article> fetchArticleByIdAndStateAndUser(Long id, String state, User user) {
+        return articleRepository.findByIdAndStateAndUser(id, state, user);
+    }
 
 
 

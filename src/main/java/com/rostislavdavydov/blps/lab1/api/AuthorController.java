@@ -1,8 +1,10 @@
 package com.rostislavdavydov.blps.lab1.api;
 
 import com.rostislavdavydov.blps.lab1.model.Article;
+import com.rostislavdavydov.blps.lab1.model.Request;
 import com.rostislavdavydov.blps.lab1.model.User;
 import com.rostislavdavydov.blps.lab1.service.ArticleService;
+import com.rostislavdavydov.blps.lab1.service.RequestService;
 import com.rostislavdavydov.blps.lab1.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -13,20 +15,22 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/aapi")
+@RequestMapping("/api/author")
 public class AuthorController {
 
     private final ArticleService articleService;
     private final UserService userService;
+    private final RequestService requestService;
 
     @Autowired
-    public AuthorController(ArticleService articleService, UserService userService) {
+    public AuthorController(ArticleService articleService, UserService userService, RequestService requestService) {
         this.articleService = articleService;
         this.userService = userService;
+        this.requestService = requestService;
     }
 
     @ApiOperation(value = "${AuthorController.addArticle}")
-    @PostMapping("/add")
+    @PostMapping("articles/add")
     public Article addArticle(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
                               @ApiParam("topic") @RequestParam(name = "topic") String topic,
                               @ApiParam("text") @RequestParam(name = "text") String text,
@@ -34,6 +38,13 @@ public class AuthorController {
         User user = userService.fetchUserById(author_id);
         if (user == null) return null;
         if (!"AUTHOR".equals(user.getRole())) return null;
+        List<Request> rList = requestService.fetchRequestsByTopicAndState(topic, "APPROVED");
+        if (rList.isEmpty()) return null;
+        for (Request r : rList) {
+            r.setState("CLOSED");
+            requestService.saveRequest(r);
+        }
+        //
         if (isDraft == null) isDraft = false;
         String state;
         if (isDraft) state = "DRAFT";
@@ -46,48 +57,52 @@ public class AuthorController {
                 .setState(state)
         );
     }
+
+
     @ApiOperation(value = "${AuthorController.editArticle}")
     @PostMapping("/edit")
     public Article editArticle(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
                                @ApiParam("article_id") @RequestParam(name = "article_id") Long article_id,
-                              @ApiParam("text") @RequestParam(name = "text",required = false) String text) {
+                               @ApiParam("text") @RequestParam(name = "text", required = false) String text) {
         User user = userService.fetchUserById(author_id);
         if (user == null) return null;
-        Optional<Article> o_article=articleService.fetchArticleByIdAndStateAndUser(article_id,"AWAIT_AUTHOR_SUBMIT",user);
+        Optional<Article> o_article = articleService.fetchArticleByIdAndStateAndUser(article_id, "AWAIT_AUTHOR_SUBMIT", user);
         if (!o_article.isPresent()) return null;
-        Article article=o_article.get();
-        if (text==null) article.setState("AWAIT_MOD_VERIF");
+        Article article = o_article.get();
+        if (text == null) article.setState("AWAIT_MOD_VERIF");
         else {
             article.setState("AWAIT_CORR_VERIF").setText(text);
         }
         return articleService.saveArticle(article);
     }
 
-    @ApiOperation(value = "${AuthorController.requestEditArticle}")
-    @PostMapping("/request_edit")
-    public Article requestEditArticle(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
-                                      @ApiParam("article_id") @RequestParam(name = "article_id") Long article_id) {
+    @ApiOperation(value = "${AuthorController.request}")
+    @PostMapping("/requests/add")
+    public Request request(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
+                           @ApiParam("topic") @RequestParam(name = "topic") String topic,
+                           @ApiParam("description") @RequestParam(name = "description") String description) {
         User user = userService.fetchUserById(author_id);
         if (user == null) return null;
-        Optional<Article> o_article=articleService.fetchArticleByIdAndStateAndUser(article_id,"SUBMITTED",user);
-        if (!o_article.isPresent()) return null;
-        Article article=o_article.get();
-        article.setState("AWAIT_EDIT");
 
-        return articleService.saveArticle(article);
+
+        return requestService.saveRequest(new Request()
+                .setUser(user)
+                .setTopic(topic)
+                .setDescription(description)
+                .setState("OPENED"));
     }
 
     @ApiOperation(value = "${AuthorController.findArticles}")
-    @GetMapping("/find")
+    @GetMapping("articles/find")
     public List<Article> findArticles(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
                                       @ApiParam("draft") @RequestParam(name = "draft", required = false) Boolean isDraft) {
 
         User user = userService.fetchUserById(author_id);
         if (user == null) return null;
-        if (isDraft == null)  return articleService.fetchArticlesByUser(user);
+        if (isDraft == null) return articleService.fetchArticlesByUser(user);
         else {
-            if (isDraft) return articleService.fetchArticlesByUserAndState(user,"DRAFT");
-            else return articleService.fetchArticlesByUserAndNotState(user,"DRAFT");
+            if (isDraft) return articleService.fetchArticlesByUserAndState(user, "DRAFT");
+            else return articleService.fetchArticlesByUserAndNotState(user, "DRAFT");
         }
 
     }

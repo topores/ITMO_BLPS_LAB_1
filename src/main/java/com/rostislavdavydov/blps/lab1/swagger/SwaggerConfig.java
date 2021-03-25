@@ -26,13 +26,12 @@ public class SwaggerConfig {
                 .apiInfo(metadata())
                 .useDefaultResponseMessages(false)
                 .genericModelSubstitutes(Optional.class);
-
     }
 
     private ApiInfo metadata() {
         return new ApiInfoBuilder()
                 .title("Business Logic. 1st lab")
-                .description("-----")
+                .description("Sergey & Rostislav")
                 .version("1.0.0")//
                 .build();
     }

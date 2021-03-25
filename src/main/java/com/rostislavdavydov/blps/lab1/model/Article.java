@@ -1,4 +1,5 @@
 package com.rostislavdavydov.blps.lab1.model;
+
 import lombok.Data;
 
 import javax.persistence.*;
