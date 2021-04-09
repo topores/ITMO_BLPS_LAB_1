@@ -24,9 +24,9 @@ public class CorrectorController {
         this.userService = userService;
     }
 
-    @ApiOperation(value = "${CorrectorController.correctArticle}")
+    @ApiOperation(value = "${CorrectorController.approveArticle}")
     @PostMapping("articles/{article_id}/approve")
-    public Article correctArticle(@ApiParam("article_id") @PathVariable(name = "article_id") Long article_id) {
+    public Article approveArticle(@ApiParam("article_id") @PathVariable(name = "article_id") Long article_id) {
         Optional<Article> o_article = articleService.fetchArticleByIdAndState(article_id, "AWAIT_CORR_VERIF");
         if (!o_article.isPresent()) return null;
         Article article = o_article.get();

@@ -37,8 +37,8 @@ public class EditorController {
 
     }
 
-    @ApiOperation(value = "${EditorController.findRequests}")
-    @GetMapping("/claims/find")
+    @ApiOperation(value = "${EditorController.findClaims}")
+    @GetMapping("/claims")
     public List<Claim> findClaims(@ApiParam("onlyAwaitEditor") @RequestParam(name = "onlyAwaitEditor", required = false) Boolean onlyAwaitEditor) {
         if (onlyAwaitEditor == null) {
             onlyAwaitEditor=false;
@@ -48,19 +48,12 @@ public class EditorController {
     }
 
 
-    @ApiOperation(value = "${EditorController.approveRequest}")
+    @ApiOperation(value = "${EditorController.deleteArticle}")
     @DeleteMapping("articles/{article_id}/delete")
     public Article deleteArticle(@ApiParam("article_id") @PathVariable(name = "article_id") Long article_id) {
         Optional<Article> o_article = articleService.fetchArticleById(article_id);
         if (!o_article.isPresent()) return null;
         Article article = o_article.get();
-
-        List<Claim> claims = claimService.fetchClaimsByArticleAndState(article, "AWAIT_MOD_VERIF");
-        if (claims.isEmpty()) return null;//new ResponseEntity<Article>(HttpStatus.INTERNAL_SERVER_ERROR);
-        for (Claim claim : claims){
-            claim.setState("CLOSED_APPROVED");
-            claimService.saveClaim(claim);
-        }
 
         return articleService.deleteArticle(article);//Article(article);
     }
@@ -70,7 +63,7 @@ public class EditorController {
 
 
     @ApiOperation(value = "${EditorController.findRequests}")
-    @GetMapping("/requests/find")
+    @GetMapping("/requests")
     public List<Request> findRequests(@ApiParam("onlyOpened") @RequestParam(name = "onlyOpened", required = false) Boolean onlyOpened) {
         if (onlyOpened == null) {
             onlyOpened=false;

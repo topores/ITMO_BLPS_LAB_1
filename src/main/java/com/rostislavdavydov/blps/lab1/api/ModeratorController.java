@@ -48,7 +48,7 @@ public class ModeratorController {
         return articleService.saveArticle(article);
     }
 
-    @ApiOperation(value = "${EditorController.findArticles}")
+    @ApiOperation(value = "${ModeratorController.findArticles}")
     @GetMapping("/articles")
     public List<Article> findArticles() {
 
@@ -57,8 +57,8 @@ public class ModeratorController {
 
 
 
-    @ApiOperation(value = "${EditorController.findRequests}")
-    @GetMapping("/claims/find")
+    @ApiOperation(value = "${ModeratorController.findClaims}")
+    @GetMapping("/claims")
     public List<Claim> findClaims(@ApiParam("onlyOpened") @RequestParam(name = "onlyOpened", required = false) Boolean onlyOpened) {
         if (onlyOpened == null) {
             onlyOpened=false;
@@ -68,7 +68,7 @@ public class ModeratorController {
     }
 
 
-    @ApiOperation(value = "${EditorController.approveRequest}")
+    @ApiOperation(value = "${ModeratorController.approveClaims}")
     @PostMapping("claims/{claim_id}/approve")
     public Claim approveClaim(@ApiParam("claim_id") @PathVariable(name = "claim_id") Long claim_id) {
         Optional<Claim> o_claim = claimService.fetchClaimByIdAndState(claim_id,"OPENED");
@@ -78,7 +78,7 @@ public class ModeratorController {
         return claimService.saveClaim(claim);
     }
 
-    @ApiOperation(value = "${EditorController.declineRequest}")
+    @ApiOperation(value = "${ModeratorController.declineClaims}")
     @PostMapping("claims/{claim_id}/decline")
     public Claim declineClaim(@ApiParam("claim_id") @PathVariable(name = "claim_id") Long claim_id) {
         Optional<Claim> o_claim = claimService.fetchClaimByIdAndState(claim_id,"OPENED");

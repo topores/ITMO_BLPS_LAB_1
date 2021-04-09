@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @RestController
@@ -39,7 +40,7 @@ public class AuthorController {
         if (user == null) return null;
         if (!"AUTHOR".equals(user.getRole())) return null;
         List<Request> rList = requestService.fetchRequestsByTopicAndState(topic, "APPROVED");
-        if (rList.isEmpty()) return null;
+        //if (rList.isEmpty()) return null;
         for (Request r : rList) {
             r.setState("CLOSED");
             requestService.saveRequest(r);
@@ -60,9 +61,9 @@ public class AuthorController {
 
 
     @ApiOperation(value = "${AuthorController.editArticle}")
-    @PostMapping("/edit")
+    @PostMapping("articles/{article_id}/edit")
     public Article editArticle(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
-                               @ApiParam("article_id") @RequestParam(name = "article_id") Long article_id,
+                               @ApiParam("article_id") @PathVariable(name = "article_id") Long article_id,
                                @ApiParam("text") @RequestParam(name = "text", required = false) String text) {
         User user = userService.fetchUserById(author_id);
         if (user == null) return null;
@@ -76,7 +77,7 @@ public class AuthorController {
         return articleService.saveArticle(article);
     }
 
-    @ApiOperation(value = "${AuthorController.request}")
+    @ApiOperation(value = "${AuthorController.addRequest}")
     @PostMapping("/requests/add")
     public Request request(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
                            @ApiParam("topic") @RequestParam(name = "topic") String topic,
@@ -93,7 +94,7 @@ public class AuthorController {
     }
 
     @ApiOperation(value = "${AuthorController.findArticles}")
-    @GetMapping("articles/find")
+    @GetMapping("articles")
     public List<Article> findArticles(@ApiParam("author_id") @RequestParam(name = "author_id") Long author_id,
                                       @ApiParam("draft") @RequestParam(name = "draft", required = false) Boolean isDraft) {
 

@@ -26,7 +26,7 @@ public class ArticleService {
 
 
     public Article deleteArticle(Article article) {
-        articleRepository.delete(article);
+        articleRepository.save(article);
         return article;
     }
 
