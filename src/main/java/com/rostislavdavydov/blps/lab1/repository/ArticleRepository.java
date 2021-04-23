@@ -23,4 +23,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, CrudRep
     Optional<Article> findByIdAndState(Long id, String state);
 
     Optional<Article> findByIdAndStateAndUser(Long id, String state, User user);
+
 }
